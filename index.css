@@ -1,3 +1,15 @@
-img {
-	display: none;
+.car {
+	background-image: url('car-blue.png');
+	background-size: contain;
+	position: absolute;
+	width: 70px;
+	height: 35px;
+	transform-origin: center left;
+}
+body {
+	background-image: url('parkinglot.jpg');
+	background-size: 500px;
+	background-position-x: 10px;
+	background-repeat: no-repeat;
+	position: absolute;
 }
