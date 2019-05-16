@@ -12,3 +12,12 @@ body {
 	background-repeat: no-repeat;
 	position: absolute;
 }
+#fade {
+	position: absolute;
+	top: 0;
+	left: 500px;
+	height: 100vh;
+	width: 400px;
+	z-index: 1;
+	background-image: linear-gradient(to right, transparent, white, white);
+}

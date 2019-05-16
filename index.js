@@ -3,6 +3,9 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 var ctx = canvas.getContext('2d');
 let cars = [];
+let queue = [];
+let leaveRequest = [];
+let moving = [];
 let intersections = [
 	//Bottom Right
 	[ 350, 520 ],
@@ -15,57 +18,59 @@ let intersections = [
 ];
 let spaces = [
 	//top spaces
-	[ [ 47, 15 ], [ 47, 155 ], 'open' ],
-	[ [ 100, 15 ], [ 100, 155 ], 'open' ],
-	[ [ 155, 15 ], [ 155, 155 ], 'open' ],
-	[ [ 208, 15 ], [ 208, 155 ], 'open' ],
-	[ [ 260, 15 ], [ 260, 155 ], 'open' ],
-	[ [ 314, 15 ], [ 314, 155 ], 'open' ],
-	[ [ 366, 15 ], [ 366, 155 ], 'open' ],
-	[ [ 420, 15 ], [ 420, 155 ], 'open' ],
-	[ [ 473, 15 ], [ 473, 155 ], 'open' ],
-	// bottom spaces
-	[ [ 45, 660 ], [ 45, 520 ], 'open' ],
-	[ [ 100, 660 ], [ 100, 520 ], 'open' ],
-	[ [ 155, 660 ], [ 155, 520 ], 'open' ],
-	[ [ 208, 660 ], [ 208, 520 ], 'open' ],
-	[ [ 260, 660 ], [ 260, 520 ], 'open' ],
-	[ [ 314, 660 ], [ 314, 520 ], 'open' ],
-	[ [ 366, 660 ], [ 366, 520 ], 'open' ],
-	[ [ 420, 660 ], [ 420, 520 ], 'open' ],
-	[ [ 473, 660 ], [ 473, 520 ], 'open' ],
+	[ [ 47, 15 ], [ 47, 155 ], 'open', 'free' ], //0
+	[ [ 100, 15 ], [ 100, 155 ], 'open', 'free' ], //1
+	[ [ 155, 15 ], [ 155, 155 ], 'open', 'free' ], //2
+	[ [ 208, 15 ], [ 208, 155 ], 'open', 'free' ], //3
+	[ [ 260, 15 ], [ 260, 155 ], 'open', 'free' ], //4
+	[ [ 314, 15 ], [ 314, 155 ], 'open', 'free' ], //5
+	[ [ 366, 15 ], [ 366, 155 ], 'open', 'free' ], //6
+	[ [ 420, 15 ], [ 420, 155 ], 'open', 'free' ], //7
+	[ [ 473, 15 ], [ 473, 155 ], 'open', 'free' ], //8
+
 	// left spaces
-	[ [ 25, 227 ], [ 165, 227 ], 'open' ],
-	[ [ 25, 280 ], [ 165, 280 ], 'open' ],
-	[ [ 25, 335 ], [ 165, 335 ], 'open' ],
-	[ [ 25, 389 ], [ 165, 389 ], 'open' ],
-	[ [ 25, 440 ], [ 165, 440 ], 'open' ],
+	[ [ 25, 227 ], [ 165, 227 ], 'open', 'free' ], //9
+	[ [ 25, 280 ], [ 165, 280 ], 'open', 'free' ], //10
+	[ [ 25, 335 ], [ 165, 335 ], 'open', 'free' ], //11
+	[ [ 25, 389 ], [ 165, 389 ], 'open', 'free' ], //12
+	[ [ 25, 440 ], [ 165, 440 ], 'open', 'free' ], //13
 	// middle spaces
-	[ [ 303, 227 ], [ 165, 227 ], 'open' ],
-	[ [ 303, 280 ], [ 165, 280 ], 'open' ],
-	[ [ 303, 335 ], [ 165, 335 ], 'open' ],
-	[ [ 303, 389 ], [ 165, 389 ], 'open' ],
-	[ [ 303, 440 ], [ 165, 440 ], 'open' ],
+	[ [ 303, 227 ], [ 165, 227 ], 'open', 'free' ], //14
+	[ [ 303, 280 ], [ 165, 280 ], 'open', 'free' ], //15
+	[ [ 303, 335 ], [ 165, 335 ], 'open', 'free' ], //16
+	[ [ 303, 389 ], [ 165, 389 ], 'open', 'free' ], //17
+	[ [ 303, 440 ], [ 165, 440 ], 'open', 'free' ], //18
 	// right spaces
-	[ [ 492, 227 ], [ 350, 227 ], 'open' ],
-	[ [ 492, 280 ], [ 350, 280 ], 'open' ],
-	[ [ 492, 335 ], [ 350, 335 ], 'open' ],
-	[ [ 492, 389 ], [ 350, 389 ], 'open' ],
-	[ [ 492, 440 ], [ 350, 440, 'open' ] ]
+	[ [ 492, 227 ], [ 350, 227 ], 'open', 'free' ], //19
+	[ [ 492, 280 ], [ 350, 280 ], 'open', 'free' ], //20
+	[ [ 492, 335 ], [ 350, 335 ], 'open', 'free' ], //21
+	[ [ 492, 389 ], [ 350, 389 ], 'open', 'free' ], //22
+	[ [ 492, 440 ], [ 350, 440 ], 'open', 'free' ], //23
+	// bottom spaces
+	[ [ 45, 660 ], [ 45, 520 ], 'open', 'free' ], //24
+	[ [ 100, 660 ], [ 100, 520 ], 'open', 'free' ], //25
+	[ [ 155, 660 ], [ 155, 520 ], 'open', 'free' ], //26
+	[ [ 208, 660 ], [ 208, 520 ], 'open', 'free' ], //27
+	[ [ 260, 660 ], [ 260, 520 ], 'open', 'free' ], //28
+	[ [ 314, 660 ], [ 314, 520 ], 'open', 'free' ], //29
+	[ [ 366, 660 ], [ 366, 520 ], 'open', 'free' ], //30
+	[ [ 420, 660 ], [ 420, 520 ], 'open', 'free' ], //31
+	[ [ 473, 660 ], [ 473, 520 ], 'open', 'free' ] //32
 ];
 
 class Car {
-	constructor(goal) {
-		this.x = 650;
+	constructor() {
+		this.x = 800;
 		this.y = 520;
 		this.backX = this.x;
 		this.backY = this.y;
 		this.angle = 0;
-		this.goal = goal;
+		this.goal;
 		this.wayPoint = [];
 		this.direction = 0;
 		this.div;
 		this.color = colorFactory();
+		this.parked = false;
 	}
 	initCar() {
 		this.div = document.createElement('div');
@@ -75,39 +80,42 @@ class Car {
 	}
 	setCar() {
 		this.angle = Math.atan2(this.backY - this.y, this.backX - this.x);
-		this.backX = Math.cos(this.angle) * 30 + this.x;
-		this.backY = Math.sin(this.angle) * 30 + this.y;
+		this.backX = Math.cos(this.angle) * 35 + this.x;
+		this.backY = Math.sin(this.angle) * 35 + this.y;
 		this.div.style.left = this.x + 'px';
 		this.div.style.top = this.y - 18 + 'px';
 		this.div.style.transform = `rotate(${this.angle * 180 / Math.PI}deg)`;
 	}
+	setTime() {
+		this.parked = false;
+		let time = Math.random() * 29 + 1;
+		setTimeout(() => {
+			leaveRequest.unshift(this);
+		}, time * 1000);
+	}
 	setPath() {
-		if (this.y == this.goal[1][1]) {
-			this.wayPoint.push(this.goal[1]);
-			this.wayPoint.push(this.goal[0]);
-		} else if (intersections[0][0] == this.goal[1][0]) {
+		if (intersections[0][0] == this.goal[1][0]) {
 			this.wayPoint.push(intersections[0]);
-			this.wayPoint.push(this.goal[1]);
-			this.wayPoint.push(this.goal[0]);
 		} else if (intersections[1][0] == this.goal[1][0]) {
 			this.wayPoint.push(intersections[1]);
-			this.wayPoint.push(this.goal[1]);
-			this.wayPoint.push(this.goal[0]);
 		} else if (intersections[2][1] == this.goal[1][1] && intersections[2][0] > this.goal[1][0]) {
 			this.wayPoint.push(intersections[1]);
 			this.wayPoint.push(intersections[2]);
-			this.wayPoint.push(this.goal[1]);
-			this.wayPoint.push(this.goal[0]);
 		} else if (intersections[2][1] == this.goal[1][1] && intersections[2][0] < this.goal[1][0]) {
 			this.wayPoint.push(intersections[0]);
 			this.wayPoint.push(intersections[3]);
-			this.wayPoint.push(this.goal[1]);
-			this.wayPoint.push(this.goal[0]);
 		}
+		this.wayPoint.push(this.goal[1]);
+		this.wayPoint.push(this.goal[0]);
+		this.parked = true;
 	}
 	setExit() {
+		for (let i = 0; i < 30; i++) {
+			if (this.goal[0] == spaces[i][0] && (i < 5 || i > 23)) {
+				this.x += 2.5;
+			}
+		}
 		this.wayPoint.push(this.goal[1]);
-
 		if (this.goal[1][1] == intersections[0][1]) {
 			this.wayPoint.push(intersections[0]);
 			this.wayPoint.push(intersections[3]);
@@ -116,7 +124,8 @@ class Car {
 		} else if (this.goal[1][0] == intersections[3][0]) {
 			this.wayPoint.push(intersections[3]);
 		}
-		this.wayPoint.push([ 650, 155 ]);
+		this.wayPoint.push([ 800, 155 ]);
+		this.goal = 'exit';
 	}
 	moveCar() {
 		if (this.wayPoint[0]) {
@@ -129,8 +138,14 @@ class Car {
 				this.y < this.wayPoint[0][1] + 1 &&
 				this.y > this.wayPoint[0][1] - 1
 			) {
+				if (this.wayPoint[0][0] == 800) {
+					moving.splice(moving.indexOf(this), 1);
+				}
 				this.wayPoint.shift();
 			}
+		} else if (this.parked == true) {
+			moving.splice(moving.indexOf(this), 1);
+			this.setTime();
 		}
 	}
 }
@@ -151,19 +166,43 @@ function colorFactory() {
 	];
 	return colors[Math.floor(Math.random() * colors.length)];
 }
-function carFactory(goal) {
-	cars.unshift(new Car(goal));
+function carFactory() {
+	cars.unshift(new Car());
 	cars[0].initCar();
-	cars[0].setPath();
+	cars[0].setCar();
+}
+for (let x = 0; x < 100; x++) {
+	carFactory();
+}
+for (let car of cars) {
+	queue.push(car);
 }
 
-function updateCar(e) {
-	car.setWayPoint(e.clientX, e.clientY);
-	ctx.beginPath();
-	ctx.arc(e.clientX, e.clientY, 5, 0, Math.PI * 2, false);
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = 'red';
-	ctx.stroke();
+//
+function attendant() {
+	if (leaveRequest[0] && leaveRequest[0].goal != 'exit') {
+		//	spaces[spaces.indexOf(leaveRequest[0].goal)][2] = 'open';
+		leaveRequest[0].setExit();
+		moving.push(leaveRequest.shift());
+	}
+	for (let spot of spaces) {
+		if (spot[2] == 'open' && spot[3] == 'free') {
+			spot[2] = 'closed';
+			let car = queue.pop();
+			car.goal = spot;
+			car.setPath();
+			break;
+		}
+	}
+}
+function toggleFree(spots) {
+	for (let spot in spots) {
+		if (spaces[spot][3] == 'free') {
+			spaces[spot][3] = 'blocked';
+		} else {
+			spaces[spot][3] = 'free';
+		}
+	}
 }
 function update() {
 	for (let car of cars) {
@@ -171,37 +210,10 @@ function update() {
 		car.setCar();
 	}
 }
+
 setInterval(() => {
 	update();
 }, 10);
-
-function drawIntersection(intersection) {
-	ctx.beginPath();
-	ctx.strokeStyle = 'red';
-	ctx.arc(intersection[0], intersection[1], 6, 0, 2 * Math.PI);
-	ctx.stroke();
-}
-function drawSpaces(spot) {
-	ctx.beginPath();
-	ctx.fillStyle = 'green';
-	ctx.arc(spot[0], spot[1], 3, 0, 2 * Math.PI);
-	ctx.fill();
-}
-function drawFlags(flag) {
-	ctx.beginPath();
-	ctx.strokeStyle = 'blue';
-	ctx.arc(flag[0], flag[1], 1, 0, 2 * Math.PI);
-	ctx.stroke();
-}
-for (let intersection of intersections) {
-	drawIntersection(intersection);
-}
-for (let spot of spaces) {
-	drawSpaces(spot[0]);
-	drawFlags(spot[1]);
-}
-for (let spot in spaces) {
-	setTimeout(() => {
-		carFactory(spaces[spot]);
-	}, spot * 1500);
-}
+setInterval(() => {
+	attendant();
+}, 1100);
