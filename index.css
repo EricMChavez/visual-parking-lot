@@ -21,3 +21,15 @@ body {
 	z-index: 1;
 	background-image: linear-gradient(to right, transparent, white, white);
 }
+button {
+	position: absolute;
+	left: 520px;
+	background-color: blue;
+	color: white;
+	z-index: 10;
+	width: 100px;
+	height: 50px;
+}
+button:hover {
+	background-color: rgb(56, 56, 253);
+}

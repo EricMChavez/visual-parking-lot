@@ -386,21 +386,14 @@ function update() {
 		car.setCar();
 	}
 }
-
-setInterval(() => {
-	update();
-}, 10);
-setInterval(() => {
-	attendant();
-	checkBlock();
-	for (let spot of spaces) {
-		ctx.beginPath();
-
-		ctx.fillStyle = 'green';
-		if (spot[3] == 'blocked') {
-			ctx.fillStyle = 'red';
-		}
-		ctx.arc(spot[0][0], spot[0][1], 5, 0, 2 * Math.PI);
-		ctx.fill();
-	}
-}, 1100);
+function start() {
+	setInterval(() => {
+		update();
+	}, 10);
+	setInterval(() => {
+		attendant();
+		checkBlock();
+	}, 1100);
+	document.querySelector('button').style.backgroundColor = 'grey';
+	document.querySelector('button').blur();
+}
