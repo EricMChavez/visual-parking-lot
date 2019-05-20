@@ -5,6 +5,7 @@ var ctx = canvas.getContext('2d');
 let cars = [];
 let queue = [];
 let leaveRequest = [];
+let blocked = [];
 let moving = [];
 let intersections = [
 	//Bottom Right
@@ -90,7 +91,7 @@ class Car {
 		this.parked = false;
 		let time = Math.random() * 29 + 1;
 		setTimeout(() => {
-			leaveRequest.unshift(this);
+			leaveRequest.push(this);
 		}, time * 1000);
 	}
 	setPath() {
@@ -144,7 +145,6 @@ class Car {
 				this.wayPoint.shift();
 			}
 		} else if (this.parked == true) {
-			moving.splice(moving.indexOf(this), 1);
 			this.setTime();
 		}
 	}
@@ -181,9 +181,20 @@ for (let car of cars) {
 //
 function attendant() {
 	if (leaveRequest[0] && leaveRequest[0].goal != 'exit') {
-		//	spaces[spaces.indexOf(leaveRequest[0].goal)][2] = 'open';
-		leaveRequest[0].setExit();
-		moving.push(leaveRequest.shift());
+		let leaving = leaveRequest[0];
+		if (checkClear(leaving)) {
+			let info = getSpaceInfo(leaving);
+			blocked.push(info[0]);
+			setTimeout(() => {
+				spaces[spaces.indexOf(leaving.goal)][2] = 'open';
+				leaving.setExit();
+			}, info[1]);
+			setTimeout(() => {
+				blocked.splice(blocked.indexOf(info[0]), 1);
+			}, 2200);
+
+			moving.push(leaveRequest.shift());
+		}
 	}
 	for (let spot of spaces) {
 		if (spot[2] == 'open' && spot[3] == 'free') {
@@ -195,12 +206,177 @@ function attendant() {
 		}
 	}
 }
-function toggleFree(spots) {
-	for (let spot in spots) {
-		if (spaces[spot][3] == 'free') {
-			spaces[spot][3] = 'blocked';
-		} else {
-			spaces[spot][3] = 'free';
+
+function getSpaceInfo(car) {
+	let spotNum = spaces.indexOf(car.goal);
+	let info;
+	switch (spotNum) {
+		case 0:
+		case 1:
+		case 2:
+			info = [ [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ], [ 9000 ] ];
+			break;
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+			info = [ [ 5, 6, 7, 8 ], [ 9000 ] ];
+			break;
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		case 18:
+			info = [ [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ], [ 6000 ] ];
+			break;
+		case 19:
+		case 20:
+		case 21:
+		case 22:
+		case 23:
+			info = [ [ 5, 6, 7, 8, 19, 20, 21, 22, 23 ], [ 6000 ] ];
+			break;
+		case 24:
+		case 25:
+		case 26:
+		case 27:
+		case 28:
+		case 29:
+		case 30:
+			info = [
+				[
+					0,
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8,
+					9,
+					10,
+					11,
+					12,
+					13,
+					14,
+					15,
+					16,
+					17,
+					18,
+					19,
+					20,
+					21,
+					22,
+					23,
+					24,
+					25,
+					26,
+					27,
+					28,
+					29
+				],
+				[ 7000 ]
+			];
+			break;
+		case 31:
+			info = [
+				[
+					0,
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8,
+					9,
+					10,
+					11,
+					12,
+					13,
+					14,
+					15,
+					16,
+					17,
+					18,
+					19,
+					20,
+					21,
+					22,
+					23,
+					24,
+					25,
+					26,
+					27,
+					28,
+					29,
+					30
+				],
+				[ 5000 ]
+			];
+			break;
+		case 32:
+			info = [
+				[
+					0,
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8,
+					9,
+					10,
+					11,
+					12,
+					13,
+					14,
+					15,
+					16,
+					17,
+					18,
+					19,
+					20,
+					21,
+					22,
+					23,
+					24,
+					25,
+					26,
+					27,
+					28,
+					29,
+					30,
+					31
+				],
+				[ 5000 ]
+			];
+	}
+	return info;
+}
+function checkClear(request) {
+	if (moving.length < 4) return true;
+
+	return false;
+}
+function checkBlock() {
+	for (let spot of spaces) {
+		spot[3] = 'free';
+	}
+	for (let list of blocked) {
+		for (let blocked of list) {
+			spaces[blocked][3] = 'blocked';
 		}
 	}
 }
@@ -216,4 +392,15 @@ setInterval(() => {
 }, 10);
 setInterval(() => {
 	attendant();
+	checkBlock();
+	for (let spot of spaces) {
+		ctx.beginPath();
+
+		ctx.fillStyle = 'green';
+		if (spot[3] == 'blocked') {
+			ctx.fillStyle = 'red';
+		}
+		ctx.arc(spot[0][0], spot[0][1], 5, 0, 2 * Math.PI);
+		ctx.fill();
+	}
 }, 1100);

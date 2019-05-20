@@ -6,9 +6,9 @@
 	transform-origin: center left;
 }
 body {
-	background-image: url('parkinglot.jpg');
+	background-image: url('newparkinglot.png');
 	background-size: 500px;
-	background-position-x: 10px;
+	background-position-x: 15px;
 	background-repeat: no-repeat;
 	position: absolute;
 }
